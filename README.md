@@ -40,7 +40,7 @@ The environment that is used for doublet detection is found here:
 ```
 You can install the environment for your use via the following commands:
 ```
-    conda create -n scrublet --file ./environments/py3.9_spec_file.20250206.txt
+    conda env create -n scrublet --file ./environments/py3.9_spec_file.20250206.txt
 ```
 If you have trouble installing the environment with any of the provided environment files you can view which libraries are used in the python script and install them via conda
 
