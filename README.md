@@ -32,7 +32,7 @@ on the cleaned object. This is how we ran scrublet in this publication
 <https://doi.org/10.1038/s41586-023-06682-5> so if you are looking for
 methods paragraphs go look there.
 
-# Setup and input {#setup_and_input}
+# Setup and input
 
 The environment that is used for doublet detection is found here:
 
@@ -66,7 +66,7 @@ cellranger run folders. These can be softlinks to cellranger run
 folders. The wrapper script will name the output folders based on the
 name of the cellranger run folders in the input folder. An example is
 below:
-
+```
     # If your input folder looks like this:
     /path/to/input/directory/
                             |
@@ -87,51 +87,43 @@ below:
                                                                 Sample_2/
                                                                 |
                                                                 Sample_3/
-
-You can find an example input directory here:
-
-    /diskmnt/Projects/HTAN_analysis_2/Cellranger/snRNA_of_multiome/2022-11-08/
-
-You can find an example output directory here:
-
-    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-snRNA/2022-11-08
-
+```
 The memory requirements are relatively small for single cell analysis at
 around 10GB-20GB per scrublet run. However, it will intermittently
 utilize a very high number of CPU threads. You can probably start 4-6
 separate instances of the scrublet script before it utilizes nearly all
 of the CPU cores at 100% on a node with 96 threads constantly.
 
-# Running on scRNA/snRNA data {#running_on_scrnasnrna_data}
+# Running on scRNA/snRNA data
 
 ## Scripts
 
 The input of this is the output of running cellranger. The scripts used
 for running automated scrublet doublet detection are:
-
-    /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh
-    /diskmnt/Projects/Users/austins2/tools/scrublet-comboRNA-auto.py
-
-## Example run {#example_run}
+```
+    scrublet-RNA-auto.sh
+    scrublet-comboRNA-auto.py
+```
+## Example run
 
 When the script is called it will write the output to the directory that
 you are currently in so cd into that directory first
 
 Run commands:
-
+```
     cd /path/to/the/scrublet/folder/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /path/to/folder/with/cellranger-runs/
-
+    bash scrublet-RNA-auto.sh /path/to/folder/with/cellranger-runs/
+```
 Example run:
-
+```
     cd /diskmnt/Projects/Users/austins2/pdac/primary_tumor/sn/scrublet-snRNA/2022-11-08/
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /diskmnt/Projects/HTAN_analysis_2/Cellranger/snRNA_of_multiome/2022-11-08/
-
-## Example output {#example_output}
+```
+## Example output
 
 There are 5 files that will be generated as output for each sample that
 is listed in the input directory:
-
+```
     /scrublet/run/directory/
                             |
                             |
@@ -146,28 +138,28 @@ is listed in the input directory:
                                     Sample_1_scrublet_output_table.csv
                                     |
                                     Sample_1_scrublet_simulated_doublet_scores_table.csv
-
--   Sample_1_doublets_hist.pdf - This a histogram of the doublet scores
+```
+-   `Sample_1_doublets_hist.pdf` - This a histogram of the doublet scores
     for each cell as predicted by scrublet. Higher means the cell is
     more likely to be a doublet. The vertical line is at the value of
     the final doublet cutoff that was used for this sample. This is
     generated on a per sample basis. This part is the most helpful for
     actually evaluating how well it worked.
--   Sample_1_doublets_umap.pdf - This is a UMAP of the sample that
+-   `Sample_1_doublets_umap.pdf` - This is a UMAP of the sample that
     doublet scores were calculated for where dot color represents the
     scrublet doublet score.
--   Sample_1_scrublet_cutoff\_.txt - Scrublet is run on each sample 10
+-   `Sample_1_scrublet_cutoff_.txt` - Scrublet is run on each sample 10
     times and the mean doublet score cutoff found by kmeans clustering
     of each of those runs is used as the final doublet score cutoff
     value. Usually this is pretty consistent. The final cutoff value is
     the one listed at the bottom of the text file.
--   Sample_1_scrublet_output_table.csv - This is a csv file with 3
+-   `Sample_1_scrublet_output_table.csv` - This is a csv file with 3
     columns. The first column is the cell barcode. The second column is
     the mean doublet score for that cell across all 10 runs. The third
     column is the final doublet prediction for that cell. `False` means
     that cell was predicted to not be a doublet. `True` means that cell
     was predicted to be a doublet.
--   Sample_1_scrublet_simulated_doublet_scores_table.csv - this is a csv
+-   `Sample_1_scrublet_simulated_doublet_scores_table.csv` - this is a csv
     file where the simulated doublet score for each cell is recorded
     from every scrublet iteration.
 
@@ -181,48 +173,48 @@ remove cells marked as `True` in the predicted_doublet metadata column.
 If a cell is marked as `False` or `NA` then we do not necessarily filter
 it based solely on doublet status in the metadata.
 
-Here is an example of how to add scrublet output to a seurat object\'s
+Here is an example of how to add scrublet output to a seurat object's
 metadata.
-
+```
     scrublet.path <- paste0("/path/to/scrublet/output/folder/",sample_id,"/",sample_id,"_scrublet_output_table.csv")
     scrublet.df <- read.table(file = scrublet.path, sep=",", header = TRUE, row.names = "Barcodes")
     seurat.obj <- AddMetaData(object = seurat.obj, metadata = scrublet.df)
-
+```
 Values will be saved to the seurat object columns called `doublet_score`
 and `predicted_doublet`
 
 An example output folder can be found at
 `/diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-snRNA/2022-11-08/HT502P1-S1H2A3Y1Nd1_1Z1_1Bmn1_1/`
 
-# Running on snATA data {#running_on_snata_data}
+# Running on snATA data
 
-## Scripts {#scripts_1}
+## Scripts
 
 The input of this is the output of cellranger-atac. The scripts used for
 running automated scrublet doublet detection are:
-
+```
     /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh
     /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.py
-
-## Example run {#example_run_1}
+```
+## Example run
 
 When the script is called it will write the output to the directory.
 
 Run commands:
-
+```
     cd /path/to/the/scrublet/folder/
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh /path/to/folder/with/cellranger-atac-runs/
-
+```
 Example run:
-
+```
     cd /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/scrublet
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/ATAC/
-
-## Example output {#example_output_1}
+```
+## Example output
 
 There are 5 files that will be generated as output for each sample that
 is listed in the input directory:
-
+```
     /scrublet/run/directory/
                             |
                             |
@@ -237,28 +229,28 @@ is listed in the input directory:
                                     Sample_1_scrublet_output_table.csv
                                     |
                                     Sample_1_scrublet_simulated_doublet_scores_table.csv
-
--   Sample_1_doublets_hist.pdf - This a histogram of the doublet scores
+```
+-   `Sample_1_doublets_hist.pdf` - This a histogram of the doublet scores
     for each cell as predicted by scrublet. Higher means the cell is
     more likely to be a doublet. The vertical line is at the value of
     the final doublet cutoff that was used for this sample. This is
     generated on a per sample basis. This part is the most helpful for
     actually evaluating how well it worked.
--   Sample_1_doublets_umap.pdf - This is a UMAP of the sample that
+-   `Sample_1_doublets_umap.pdf` - This is a UMAP of the sample that
     doublet scores were calculated for where dot color represents the
     scrublet doublet score.
--   Sample_1_scrublet_cutoff\_.txt - Scrublet is run on each sample 10
+-   `Sample_1_scrublet_cutoff_.txt` - Scrublet is run on each sample 10
     times and the mean doublet score cutoff found by kmeans clustering
     of each of those runs is used as the final doublet score cutoff
     value. Usually this is pretty consistent. The final cutoff value is
     the one listed at the bottom of the text file.
--   Sample_1_scrublet_output_table.csv - This is a csv file with 3
+-   `Sample_1_scrublet_output_table.csv` - This is a csv file with 3
     columns. The first column is the cell barcode. The second column is
     the mean doublet score for that cell across all 10 runs. The third
     column is the final doublet prediction for that cell. `False` means
     that cell was predicted to not be a doublet. `True` means that cell
     was predicted to be a doublet.
--   Sample_1_scrublet_simulated_doublet_scores_table.csv - this is a csv
+-   `Sample_1_scrublet_simulated_doublet_scores_table.csv` - this is a csv
     file where the simulated doublet score for each cell is recorded
     from every scrublet iteration.
 
@@ -274,33 +266,33 @@ it based solely on doublet status in the metadata.
 
 Here is an example of how to add scrublet output to a seurat object\'s
 metadata.
-
+```
     scrublet.path <- paste0("/path/to/scrublet/output/folder/",sample_id,"/",sample_id,"_scrublet_output_table.csv")
     scrublet.df <- read.table(file = scrublet.path, sep=",", header = TRUE, row.names = "Barcodes")
     seurat.obj <- AddMetaData(object = seurat.obj, metadata = scrublet.df)
-
+```
 Values will be saved to the seurat object columns called `doublet_score`
 and `predicted_doublet`
 
 An example output folder can be found at
 `/diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/scrublet/CPT1541DU-S1/`
 
-# Running on multiome data {#running_on_multiome_data}
+# Running on multiome data
 
 The input of this is the output of cellranger-arc If you just want to
 use the RNA part of a multiome sample then only use the RNA output from
 the below commands. If you just want to use the ATAC output then just
 use the ATAC part of the below commands. The scripts used for running
 automated scrublet doublet detection are:
-
+```
     /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh
     /diskmnt/Projects/Users/austins2/tools/scrublet-comboATAC-auto.py
     /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh
     /diskmnt/Projects/Users/austins2/tools/scrublet-comboRNA-auto.py
     /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh
     /diskmnt/Projects/Users/austins2/tools/combining-sn-and-atac-scrublet.py
-
-## Example run {#example_run_2}
+```
+## Example run
 
 When the script is called it will write the output to the directory in
 which it is called.
@@ -312,16 +304,16 @@ One for the ATAC results. One for the result of combining them. The
 outputs of both are used to inform doublet calls in Seurat/Scanpy.
 
 Run commands:
-
+```
     cd /path/to/the/scrublet_folder/RNA/
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /path/to/folder/with/cellranger-arc-runs/
     cd /path/to/the/scrublet_folder/ATAC/
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh /path/to/folder/with/cellranger-arc-runs/
     cd /path/to/the/scrublet_folder/combined/
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh /path/to/folder/with/cellranger-arc-runs/ /path/to/the/scrublet_folder/RNA/ /path/to/the/scrublet_folder/ATAC/
-
+```
 Example run:
-
+```
     conda activate py3.9
     cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030
@@ -329,12 +321,12 @@ Example run:
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030
     cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/combined
     bash /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030/ /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA/ /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/ATAC/
-
-## Example output {#example_output_2}
+```
+## Example output
 
 There are 5 files that will be generated as output for each sample that
 is listed in the input directory:
-
+```
     /scrublet/run/directory/RNA/
                             |   |
                             |   |
@@ -369,7 +361,7 @@ is listed in the input directory:
                                     Sample_1/
                                             |
                                             Sample_1_combo_scrublet_output_table.csv
-
+```
 For each sample the RNA and ATAC folders will each have the following 5
 files (they are basically the same as when you run it just on snRNA or
 just snATAC):
@@ -430,14 +422,14 @@ it based solely on doublet status in the metadata.
 
 Here is an example of how to add multiome scrublet output to a seurat
 object\'s metadata.
-
+```
     scrublet.path <- paste0("/path/to/scrublet/output/folder/combined/",sample_id,"/",sample_id,"_combo_scrublet_output_table.csv")
     scrublet.df <- read.table(file = scrublet.path, sep=",", header = TRUE, row.names = "Barcodes")
     scrublet.df$predicted_doublet <- "NA"
     scrublet.df$predicted_doublet[scrublet.df$predicted_doublet_rna == 'True' & scrublet.df$predicted_doublet_atac == 'True'] <- 'True'
     scrublet.df$predicted_doublet[scrublet.df$predicted_doublet_rna == 'False' | scrublet.df$predicted_doublet_atac == 'False'] <- 'False'
     seurat.obj <- AddMetaData(object = seurat.obj, metadata = scrublet.df)
-
+```
 Values will be saved to the seurat object columns called `doublet_score`
 and `predicted_doublet`
 
