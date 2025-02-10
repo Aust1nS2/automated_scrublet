@@ -1,0 +1,14 @@
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - python=3.9.6
+  - scrublet
+  - pandas
+  - numpy
+  - matplotlib
+  - scipy
+  - scikit-learn
+  - gzip

@@ -20,8 +20,8 @@
             #                       /3rd-sample_scrublet_output_table.csv
 #
 folder=$(pwd)
-cellrangerpath=$1
-scrublet=$2
+cellrangerpath=$2
+scrublet=$1
 for dir in $cellrangerpath/*; do
     dir=${dir%*/}
     dir="${dir##*/}"
