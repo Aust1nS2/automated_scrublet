@@ -22,6 +22,7 @@
 folder=$(pwd)
 cellrangerpath=$2
 scrublet=$1
+outdir=$3
 for dir in $cellrangerpath/*; do
     dir=${dir%*/}
     dir="${dir##*/}"
@@ -31,10 +32,10 @@ for dir in $cellrangerpath/*; do
         if [ -d "$cellrangerpath"/"$dir"/outs ]
         then
             echo "Cellranger for $dir exists"
-            mkdir $dir
-            cd $dir
-            python3 $scrublet/scrublet-ATAC-only-auto.py -s $dir -c $cellrangerpath/$dir -u 0.2
-            cd ..
+            mkdir $outdir/$dir
+            cd $outdir/$dir
+            python3 $scrublet/scrublet-ATAC-only-auto.py -s $dir -c $cellrangerpath/$dir -u 0.2 $outdir
+            cd $folder
         else
             echo "Cellranger outs for $dir does not exist at the provided location"
         fi

@@ -49,7 +49,7 @@ if __name__ == "__main__":
 cellranger=sys.argv[4]
 sample=sys.argv[2]
 cutoff = sys.argv[6]
-
+out_dir = sys.argv[7]
 
 #input_dir = '/diskmnt/Datasets/mmy_scratch/MetNet/Brain/cellranger/RM024R1-XBn1_1/RM024R1-XBn1_1/outs/filtered_feature_bc_matrix/'
 #Only works on filtered_feature matrix - raw matrix takes too much memory
@@ -118,11 +118,11 @@ print("The boundary between clusters was "+str(boundary))
 cutoff_list.append(boundary)
 print("Generating output files and plots")
 #writing simulated doublets dataframe to csv that can be manually reviewed if need be
-output_simulated_doublets= sample+"_scrublet_simulated_doublet_scores_table.csv"
+output_simulated_doublets= out_dir + "/" + sample + "/" + sample+"_scrublet_simulated_doublet_scores_table.csv"
 sim_df.to_csv(output_simulated_doublets, sep = ",", index=False)
 final_cutoff = np.mean(cutoff_list)
 scrub.call_doublets(threshold=float(final_cutoff)) #gives threshold
-out_file = open(sample+"_scrublet_cutoff_.txt", "w")
+out_file = open(out_dir + "/" + sample + "/" + sample+"_scrublet_cutoff_.txt", "w")
 #print(cutoff_list)
 for value in cutoff_list:
     out_file.write(str(value)+"\n")
@@ -158,7 +158,7 @@ out_file.close()
 
 ###Barcode and Doublet Prediction File
 #https://github.com/swolock/scrublet/issues/5
-outputfile=sample+"_scrublet_output_table.csv"
+outputfile=out_dir + "/" + sample + "/" + sample+"_scrublet_output_table.csv"
 df = pd.DataFrame({
         'doublet_score': scrub.doublet_scores_obs_,
         'predicted_doublet': scrub.predicted_doublets_
@@ -170,7 +170,7 @@ dffinal.to_csv(outputfile, index=False)
 ###DOUBLET HISTOGRAM and PREDICTED DOUBLET RATE
 plt.figure(figsize=(3, 3))
 scrub.plot_histogram()
-plt.savefig(sample+"_doublets_hist.pdf")
+plt.savefig(out_dir + "/" + sample + "/" + sample+"_doublets_hist.pdf")
 plt.close()
 
 print('Running UMAP...')
@@ -179,5 +179,5 @@ print('Done.')
 
 plt.figure(figsize=(3, 3))
 scrub.plot_embedding('UMAP', order_points=True)
-plt.savefig(sample+"_doublets_umap.pdf")
+plt.savefig(out_dir + "/" + sample + "/" + sample+"_doublets_umap.pdf")
 plt.close()

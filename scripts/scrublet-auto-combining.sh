@@ -24,6 +24,7 @@ scrublet=$1
 cellrangerpath=$2
 scrubletATAC=$4
 scrubletRNA=$3
+outdir=$5
 for dir in $cellrangerpath/*; do
     dir=${dir%*/}
     dir="${dir##*/}"
@@ -33,10 +34,10 @@ for dir in $cellrangerpath/*; do
         if [ -d "$cellrangerpath"/"$dir"/outs ]
         then
             echo "Cellranger for $dir exists"
-            mkdir $dir
-            cd $dir
-            python3 $scrublet/combining-sn-and-atac-scrublet.py -s $dir --rna_input $scrubletRNA --atac_input $scrubletATAC
-            cd ..
+            mkdir $outdir/$dir
+            cd $outdir/$dir
+            python3 $scrublet/combining-sn-and-atac-scrublet.py -s $dir --rna_input $scrubletRNA --atac_input $scrubletATAC $outdir
+            cd $folder
         else
             echo "Cellranger outs for $dir does not exist at the provided location"
         fi
