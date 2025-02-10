@@ -434,3 +434,10 @@ and `predicted_doublet`
 
 An example output folder can be found at
 `/diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/combined`
+
+# Docker image
+to see how to use the docker image refer to the file
+```
+docker/README.md
+```
+
