@@ -42,7 +42,7 @@ You can install the environment for your use via the following commands:
 ```
     conda env create -n scrublet --file ./environments/py3.9_spec_file.20250206.txt
 ```
-If you have trouble installing the environment with any of the provided environment files you can view which libraries are used in the python script and install them via conda
+If you have trouble installing the environment with any of the provided environment files you can view which libraries are used in the python script and install them via conda. Alternatively you can use the docker image. See the docker README.md file.
 
 Scrublet should always be used on the filtered matrix results from
 cellranger, cellranger-atac, or cellranger-arc. In theory it could be
@@ -81,14 +81,14 @@ below:
     # Sample_1 and Sample_2 could be the actual cellranger run folder
     # Sample_3 could then be a softlink to another cellranger run folder
     # then the output of the scrublet wrapper scripts as I have written them will be:
-    /path/to/directory/where/scrublet/wrapper/script/is/executed/
-                                                                |
-                                                                |
-                                                                Sample_1/
-                                                                |
-                                                                Sample_2/
-                                                                |
-                                                                Sample_3/
+    /path/to/the/specified/output/folder/
+                                        |
+                                        |
+                                        Sample_1/
+                                        |
+                                        Sample_2/
+                                        |
+                                        Sample_3/
 ```
 The memory requirements are relatively small for single cell analysis at
 around 10GB-20GB per scrublet run. However, it will intermittently
@@ -108,25 +108,29 @@ for running automated scrublet doublet detection are:
 ```
 ## Example run
 
-When the script is called it will write the output to the directory that
-you are currently in so cd into that directory first
+The script takes ordered arguments. Argument 1 is the path to the folder with the scrublet .py scripts. Argument 2 is the path to the folder with cellranger runs. Argument 3 is the the path to the output directory.
+
+You can have multiple cellranger runs in one input folder and the bash shell scripts will loop over all of them.
 
 Run commands:
 ```
-    cd /path/to/the/scrublet/folder/
-    bash scrublet-RNA-auto.sh /path/to/install/of/automated_scrublet/scripts /path/to/folder/with/cellranger-runs/
+    cd /path/to/automated_scrublet/scripts/
+    bash scrublet-RNA-auto.sh /path/to/automated_scrublet/scripts /path/to/folder/with/cellranger-runs/ /path/to/the/output/folder/
 ```
 Example run:
 ```
     cd /diskmnt/Projects/Users/austins2/pdac/primary_tumor/sn/scrublet-snRNA/2022-11-08/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts /diskmnt/Projects/HTAN_analysis_2/Cellranger/snRNA_of_multiome/2022-11-08/
+    bash /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts/scrublet-RNA-auto.sh \
+    /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts \
+    /diskmnt/Projects/HTAN_analysis_2/Cellranger/snRNA_of_multiome/2022-11-08/ \
+    /diskmnt/Projects/Users/austins2/pdac/primary_tumor/sn/scrublet-snRNA/2022-11-08/
 ```
 ## Example output
 
 There are 5 files that will be generated as output for each sample that
 is listed in the input directory:
 ```
-    /scrublet/run/directory/
+    /scrublet/output/folder/
                             |
                             |
                             Sample_1/
@@ -192,29 +196,34 @@ and `predicted_doublet`
 The input of this is the output of cellranger-atac. The scripts used for
 running automated scrublet doublet detection are:
 ```
-    /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh
-    /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.py
+    scrublet-ATAC-only-auto.sh
+    scrublet-ATAC-only-auto.py
 ```
 ## Example run
 
-When the script is called it will write the output to the directory.
+The script takes ordered arguments. Argument 1 is the path to the folder with the scrublet .py scripts. Argument 2 is the path to the folder with cellranger runs. Argument 3 is the the path to the output directory.
+
+You can have multiple cellranger runs in one input folder and the bash shell scripts will loop over all of them.
 
 Run commands:
 ```
-    cd /path/to/the/scrublet/folder/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh /path/to/install/of/automated_scrublet/scripts /path/to/folder/with/cellranger-atac-runs/
+    cd /path/to/automated_scrublet/scripts/
+    bash scrublet-ATAC-only-auto.sh /path/to/automated_scrublet/scripts /path/to/folder/with/cellranger-atac-runs/ /path/to/the/output/folder/
 ```
 Example run:
 ```
     cd /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/scrublet
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-only-auto.sh /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/ATAC/
+    bash /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts/scrublet-ATAC-only-auto.sh \
+    /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts \
+    /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/ATAC/ \
+    /diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/scrublet/
 ```
 ## Example output
 
 There are 5 files that will be generated as output for each sample that
 is listed in the input directory:
 ```
-    /scrublet/run/directory/
+    /scrublet/output/folder/
                             |
                             |
                             Sample_1/
@@ -273,9 +282,6 @@ metadata.
 Values will be saved to the seurat object columns called `doublet_score`
 and `predicted_doublet`
 
-An example output folder can be found at
-`/diskmnt/Projects/Users/austins2/pancan_ATAC/separate-cellranger-test/scrublet/CPT1541DU-S1/`
-
 # Running on multiome data
 
 The input of this is the output of cellranger-arc If you just want to
@@ -284,17 +290,16 @@ the below commands. If you just want to use the ATAC output then just
 use the ATAC part of the below commands. The scripts used for running
 automated scrublet doublet detection are:
 ```
-    /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh
-    /diskmnt/Projects/Users/austins2/tools/scrublet-comboATAC-auto.py
-    /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh
-    /diskmnt/Projects/Users/austins2/tools/scrublet-comboRNA-auto.py
-    /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh
-    /diskmnt/Projects/Users/austins2/tools/combining-sn-and-atac-scrublet.py
+    scrublet-ATAC-auto.sh
+    scrublet-comboATAC-auto.py
+    scrublet-RNA-auto.sh
+    scrublet-comboRNA-auto.py
+    scrublet-auto-combining.sh
+    combining-sn-and-atac-scrublet.py
 ```
 ## Example run
 
-When the script is called it will write the output to the directory in
-which it is called.
+The script takes ordered arguments. See the examples below for what those are.
 
 You will need to run the RNA part and the ATAC parts separately. After
 they are both done you can combine them into a a single result file. I
@@ -302,24 +307,38 @@ recommend setting up three separate folders. One for the RNA results.
 One for the ATAC results. One for the result of combining them. The
 outputs of both are used to inform doublet calls in Seurat/Scanpy.
 
+You can have multiple cellranger runs in one input folder and the bash shell scripts will loop over all of them.
+
 Run commands:
 ```
-    cd /path/to/the/scrublet_folder/RNA/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /path/to/install/of/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/
-    cd /path/to/the/scrublet_folder/ATAC/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh /path/to/install/of/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/
-    cd /path/to/the/scrublet_folder/combined/
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh /path/to/install/of/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/ /path/to/the/scrublet_folder/RNA/ /path/to/the/scrublet_folder/ATAC/
+    cd /path/to/the/scrublet_run_folder/
+    mkdir RNA ATAC combined
+    bash scrublet-RNA-auto.sh /path/to/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/ /path/to/the/scrublet_run_folder/RNA
+    bash scrublet-ATAC-auto.sh /path/to/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/ /path/to/the/scrublet_run_folder/ATAC
+    bash scrublet-auto-combining.sh /path/to/automated_scrublet/scripts /path/to/folder/with/cellranger-arc-runs/ /path/to/the/scrublet_run_folder/RNA /path/to/the/scrublet_run_folder/ATAC /path/to/the/scrublet_run_folder/combined
 ```
 Example run:
 ```
     conda activate py3.9
-    cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-RNA-auto.sh /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030
-    cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/ATAC
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-ATAC-auto.sh /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030
-    cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/combined
-    bash /diskmnt/Projects/Users/austins2/tools/scrublet-auto-combining.sh /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030/ /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA/ /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/ATAC/
+    cd /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/
+    mkdir RNA ATAC combined
+    # RNA portion can be run at the same time as the ATAC
+    bash /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts/scrublet-RNA-auto.sh \
+    /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts \
+    /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030 \
+    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA
+    # ATAC portion can be run at the same time as the RNA
+    bash /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts/scrublet-ATAC-auto.sh \
+    /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts \
+    /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030 \
+    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/ATAC
+    # After ATAC and RNA are done then combine the results
+    bash /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts/scrublet-auto-combining.sh \
+    /diskmnt/Projects/Users/austins2/tools/automated_scrublet/scripts \
+    /diskmnt/Projects/HTAN_analysis_2/Cellranger-arc/20231030 \
+    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/RNA \
+    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/ATAC \
+    /diskmnt/Projects/HTAN_analysis_2/PDAC/primary/sn/scrublet-arc/20231030/combined
 ```
 ## Example output
 
